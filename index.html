@@ -1,0 +1,858 @@
+<<!DOCTYPE html>
+<html lang="en" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SymptomSense — Health Guidance Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+JP:wght@400;600;700&family=Noto+Sans+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#132322;
+    --paper:#F4F7F5;
+    --card:#FFFFFF;
+    --teal-900:#0E3E3B;
+    --teal-700:#166A63;
+    --teal-500:#1F9188;
+    --teal-100:#DCEFEA;
+    --amber:#E7A335;
+    --amber-100:#FBEBD0;
+    --coral:#D9634E;
+    --coral-100:#FBE2DC;
+    --line:#D8E2DE;
+    --shadow: 0 12px 32px -16px rgba(14,62,59,.35);
+    --radius: 18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 85% -10%, #E4F1EC 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, #FBEBD0 0%, transparent 55%),
+      var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:28px 16px 60px;
+  }
+  [dir="rtl"] body{direction:rtl;}
+  h1,h2,h3,.display{font-family:'Fraunces',serif; font-weight:600; letter-spacing:-.01em;}
+  .lang-zh h1,.lang-zh h2,.lang-zh h3,.lang-zh .display{font-family:'Noto Sans SC',sans-serif;}
+  .lang-ja h1,.lang-ja h2,.lang-ja h3,.lang-ja .display{font-family:'Noto Sans JP',sans-serif;}
+  .lang-hi h1,.lang-hi h2,.lang-hi h3,.lang-hi .display{font-family:'Noto Sans Devanagari',sans-serif;}
+  .lang-ar h1,.lang-ar h2,.lang-ar h3,.lang-ar .display{font-family:'Noto Sans Arabic',sans-serif;}
+  .lang-zh body,.lang-zh{font-family:'Noto Sans SC',sans-serif;}
+  .lang-ja{font-family:'Noto Sans JP',sans-serif;}
+  .lang-hi{font-family:'Noto Sans Devanagari',sans-serif;}
+  .lang-ar{font-family:'Noto Sans Arabic',sans-serif;}
+
+  .shell{width:100%;max-width:760px;}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+  .brand-mark{
+    width:34px;height:34px;border-radius:10px;
+    background:linear-gradient(155deg,var(--teal-700),var(--teal-900));
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:var(--shadow);
+  }
+  .brand-mark svg{width:18px;height:18px;}
+  .brand-name{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;color:var(--teal-900);}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:34px 32px;
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:5px;
+    background:linear-gradient(90deg,var(--teal-500),var(--amber));
+  }
+  @media (max-width:600px){ .card{padding:24px 18px;} }
+
+  .lang-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:20px;}
+  @media (min-width:480px){ .lang-grid{grid-template-columns:repeat(3,1fr);} }
+  .lang-btn{
+    border:1px solid var(--line); background:var(--paper); border-radius:12px;
+    padding:12px 10px; font-size:.92rem; cursor:pointer; text-align:center;
+    transition:.15s ease; color:var(--ink); font-weight:500;
+  }
+  .lang-btn:hover{border-color:var(--teal-500); background:var(--teal-100); transform:translateY(-1px);}
+
+  .eyebrow{
+    text-transform:uppercase; letter-spacing:.14em; font-size:.72rem;
+    color:var(--teal-700); font-weight:700; margin-bottom:8px;
+  }
+  h1.display{font-size:1.7rem; margin:0 0 10px; color:var(--teal-900); line-height:1.2;}
+  .sub{color:#4B5F5C; font-size:.98rem; line-height:1.55; margin:0 0 22px;}
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    background:var(--teal-700); color:#fff; border:none; border-radius:12px;
+    padding:13px 22px; font-size:.98rem; font-weight:600; cursor:pointer;
+    transition:.15s ease; font-family:inherit;
+  }
+  .btn:hover{background:var(--teal-900);}
+  .btn.secondary{background:transparent; color:var(--teal-700); border:1.5px solid var(--teal-500);}
+  .btn.secondary:hover{background:var(--teal-100);}
+  .btn.block{width:100%;}
+  .btn:disabled{opacity:.45; cursor:not-allowed;}
+  .row-actions{display:flex; gap:10px; margin-top:26px; flex-wrap:wrap;}
+
+  .symptom-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin:18px 0 6px;}
+  @media (max-width:520px){ .symptom-grid{grid-template-columns:1fr;} }
+  .symptom-chip{
+    display:flex; align-items:center; gap:10px; border:1.5px solid var(--line);
+    border-radius:12px; padding:11px 13px; cursor:pointer; user-select:none;
+    background:#fff; transition:.12s ease; font-size:.92rem;
+  }
+  .symptom-chip:hover{border-color:var(--teal-500);}
+  .symptom-chip.checked{border-color:var(--teal-700); background:var(--teal-100); font-weight:600;}
+  .symptom-chip input{accent-color:var(--teal-700); width:16px; height:16px; flex-shrink:0;}
+
+  .progress-wrap{margin-bottom:22px;}
+  .progress-track{height:6px; border-radius:4px; background:var(--line); overflow:hidden;}
+  .progress-fill{height:100%; background:linear-gradient(90deg,var(--teal-500),var(--teal-700)); transition:width .3s ease;}
+  .progress-label{font-size:.78rem; color:#61756F; margin-top:8px; font-weight:600; letter-spacing:.02em;}
+
+  .q-text{font-size:1.22rem; line-height:1.45; margin:6px 0 26px; color:var(--teal-900); font-family:'Fraunces',serif; font-weight:600;}
+  .yn-row{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .yn-btn{
+    border:1.5px solid var(--line); background:#fff; border-radius:12px;
+    padding:16px; font-size:1rem; font-weight:700; cursor:pointer; transition:.12s ease;
+    font-family:inherit;
+  }
+  .yn-btn.yes:hover{border-color:var(--teal-600,#166A63); background:var(--teal-100); color:var(--teal-900);}
+  .yn-btn.no:hover{border-color:var(--coral); background:var(--coral-100); color:#8B3524;}
+
+  .emergency-banner{
+    display:flex; gap:12px; align-items:flex-start; background:var(--coral-100);
+    border:1.5px solid #EFB3A4; color:#7A2E1D; border-radius:14px; padding:16px 18px; margin-bottom:22px;
+  }
+  .emergency-banner svg{flex-shrink:0; margin-top:2px;}
+  .emergency-banner b{display:block; margin-bottom:3px; font-size:.95rem;}
+  .emergency-banner p{margin:0; font-size:.87rem; line-height:1.5;}
+
+  .result-card{
+    border:1.5px solid var(--line); border-radius:14px; padding:18px 20px; margin-bottom:14px;
+    background:#fff; position:relative;
+  }
+  .result-card.top{border-color:var(--teal-500); background:linear-gradient(180deg,#fff, var(--teal-100) 260%);}
+  .result-head{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:6px;}
+  .result-name{font-family:'Fraunces',serif; font-weight:600; font-size:1.12rem; color:var(--teal-900);}
+  .result-pct{font-weight:700; font-size:1.15rem; color:var(--teal-700); white-space:nowrap;}
+  .pct-track{height:8px; border-radius:5px; background:var(--line); overflow:hidden; margin:8px 0 12px;}
+  .pct-fill{height:100%; border-radius:5px; background:linear-gradient(90deg,var(--amber),var(--teal-700));}
+  .result-advice{font-size:.9rem; color:#3D4F4B; line-height:1.55; margin-bottom:10px;}
+  .specialist-tag{
+    display:inline-flex; align-items:center; gap:6px; font-size:.82rem; font-weight:600;
+    background:var(--teal-100); color:var(--teal-900); padding:6px 11px; border-radius:20px;
+  }
+
+  .disclaimer{
+    font-size:.8rem; color:#6B7C77; line-height:1.6; background:var(--paper);
+    border:1px dashed var(--line); border-radius:12px; padding:14px 16px; margin-top:22px;
+  }
+  .maps-cta{
+    margin-top:18px; padding:18px; border-radius:14px; background:var(--teal-900); color:#fff;
+    display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between;
+  }
+  .maps-cta p{margin:0; font-size:.88rem; opacity:.85; max-width:340px;}
+  .maps-cta .btn{background:var(--amber); color:#3A2A05;}
+  .maps-cta .btn:hover{background:#F0B85A;}
+
+  select.lang-select{
+    border:1.5px solid var(--line); border-radius:10px; padding:8px 10px; font-family:inherit;
+    font-size:.85rem; background:#fff; color:var(--ink); cursor:pointer;
+  }
+  .top-bar{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;}
+  .step-dot-row{display:flex; gap:5px; align-items:center;}
+  .hidden{display:none !important;}
+  .count-badge{
+    display:inline-block; background:var(--amber-100); color:#8A5A0B; font-weight:700;
+    font-size:.78rem; padding:3px 10px; border-radius:20px; margin-bottom:12px;
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="12" r="9.4" stroke="#fff" stroke-width="1.6" opacity=".55"/></svg>
+    </div>
+    <div class="brand-name">ASHACARE AI</div>
+  </div>
+
+  <div class="card" id="cardRoot"></div>
+</div>
+
+<script>
+/* ======================= DATA ======================= */
+
+const LANGS = [
+  {code:'en', native:'English'},
+  {code:'es', native:'Español'},
+  {code:'fr', native:'Français'},
+  {code:'de', native:'Deutsch'},
+  {code:'pt', native:'Português'},
+  {code:'ru', native:'Русский'},
+  {code:'hi', native:'हिन्दी'},
+  {code:'zh', native:'中文'},
+  {code:'ar', native:'العربية'},
+  {code:'ja', native:'日本語'}
+];
+const RTL_LANGS = ['ar'];
+
+const SYMPTOM_IDS = ['fever','cough','sore_throat','headache','fatigue','body_ache','nausea','vomiting',
+  'diarrhea','chest_pain','breath_short','dizziness','rash','joint_pain','abdominal_pain','runny_nose',
+  'loss_appetite','chills','sweating','blurred_vision','burning_urination'];
+
+const DISEASE_IDS = ['cold','flu','covid','migraine','gastro','allergy','bronchitis','uti','tension_headache','food_poison'];
+
+// symptom -> weight per disease
+const DISEASE_SYMPTOMS = {
+  cold:{runny_nose:2, sore_throat:2, cough:1, headache:.5, fatigue:.5},
+  flu:{fever:2, body_ache:2, chills:2, fatigue:2, cough:1, headache:1},
+  covid:{fever:1, cough:2, breath_short:2, fatigue:1, sore_throat:1},
+  migraine:{headache:3, blurred_vision:2, nausea:1, dizziness:1},
+  gastro:{nausea:2, vomiting:2, diarrhea:2, abdominal_pain:2, fever:.5},
+  allergy:{runny_nose:2, rash:1, sore_throat:.5},
+  bronchitis:{cough:3, chest_pain:1, breath_short:1, fatigue:1},
+  uti:{abdominal_pain:1, fever:1, chills:1, burning_urination:3},
+  tension_headache:{headache:3, fatigue:1},
+  food_poison:{nausea:2, vomiting:2, diarrhea:2, abdominal_pain:2, fever:.5, chills:.5}
+};
+
+const DISEASE_SPECIALIST = {
+  cold:'general_physician', flu:'general_physician', covid:'general_physician',
+  migraine:'neurologist', gastro:'gastroenterologist', allergy:'allergist',
+  bronchitis:'pulmonologist', uti:'urologist', tension_headache:'neurologist', food_poison:'gastroenterologist'
+};
+
+// question pool: id -> {weights:{diseaseId:score}}
+const QUESTIONS = {
+  q1:{w:{flu:2, covid:1}},
+  q2:{w:{covid:3}},
+  q3:{w:{covid:1, bronchitis:-1}},
+  q4:{w:{bronchitis:2, cold:1}},
+  q5:{w:{migraine:3}},
+  q6:{w:{tension_headache:3}},
+  q7:{w:{food_poison:3}},
+  q8:{w:{food_poison:2}},
+  q9:{w:{uti:3}},
+  q10:{w:{uti:2}},
+  q11:{w:{allergy:3}},
+  q12:{w:{allergy:2, cold:-1}},
+  q13:{w:{allergy:1, bronchitis:1}},
+  q14:{w:{bronchitis:2, covid:1}},
+  q15:{w:{flu:1, covid:2, cold:1}}
+};
+
+// max possible score per disease (symptom weights + positive question weights)
+function computeMaxScores(){
+  const max = {};
+  DISEASE_IDS.forEach(d=>{
+    let s = 0;
+    Object.values(DISEASE_SYMPTOMS[d]).forEach(w=> s += Math.max(w,0));
+    Object.values(QUESTIONS).forEach(q=>{ if(q.w[d] && q.w[d]>0) s += q.w[d]; });
+    max[d] = s || 1;
+  });
+  return max;
+}
+const MAX_SCORES = computeMaxScores();
+
+/* ======================= TRANSLATIONS ======================= */
+// Each language provides: ui{}, symptoms{}, diseases{name,advice}, specialists{}, questions{}
+const T = {
+en:{
+  ui:{title:"How are you feeling today?", subtitle:"Tell us what's going on, and we'll help you understand your symptoms and figure out the right next step.",
+  startBtn:"Check my symptoms", symptomsTitle:"Select all symptoms you are currently experiencing",
+  symptomsSub:"Choose as many as apply. This helps us narrow things down.", continueBtn:"Continue", backBtn:"Back",
+  questionsTitle:"A few quick questions", yes:"Yes", no:"No", resultsTitle:"Your results",
+  resultsSub:"Based on your answers, here's what's most likely — and what to do next.",
+  matchLabel:"Likelihood match", adviceLabel:"What to do", specialistLabel:"See a", findDoctorTitle:"Find a doctor nearby",
+  findDoctorText:"Open Google Maps to locate specialists near your current location.", findDoctorBtn:"Find doctors near me",
+  restartBtn:"Start over", disclaimer:"SymptomSense is an educational tool and does not provide a medical diagnosis. The results are informational estimates only, not a substitute for professional medical advice. Always consult a licensed doctor for any health concern.",
+  emergencyTitle:"Seek urgent care", emergencyText:"Some of your symptoms can indicate a medical emergency. If you have severe chest pain, trouble breathing, or symptoms that feel life-threatening, contact emergency services or go to the nearest emergency room immediately.",
+  noSymptoms:"Please select at least one symptom to continue.", selectLangTitle:"Choose your language", of:"of", question:"Question"},
+  symptoms:{fever:"Fever",cough:"Cough",sore_throat:"Sore throat",headache:"Headache",fatigue:"Fatigue",body_ache:"Body aches",nausea:"Nausea",vomiting:"Vomiting",diarrhea:"Diarrhea",chest_pain:"Chest pain",breath_short:"Shortness of breath",dizziness:"Dizziness",rash:"Skin rash",joint_pain:"Joint pain",abdominal_pain:"Abdominal pain",runny_nose:"Runny nose",loss_appetite:"Loss of appetite",chills:"Chills",sweating:"Excessive sweating",blurred_vision:"Blurred vision",burning_urination:"Burning during urination"},
+  diseases:{cold:{name:"Common Cold",advice:"Rest, stay hydrated, and use over-the-counter remedies for relief. See a doctor if symptoms worsen or last beyond 10 days."},
+  flu:{name:"Influenza (Flu)",advice:"Rest, drink fluids, and consider antiviral medication if seen early. Seek care if you have trouble breathing or symptoms are severe."},
+  covid:{name:"COVID-19-like illness",advice:"Isolate from others, rest, and get tested. Seek urgent care if you experience shortness of breath or chest pain."},
+  migraine:{name:"Migraine",advice:"Rest in a dark, quiet room, stay hydrated, and consider over-the-counter pain relief. See a neurologist if migraines are frequent or severe."},
+  gastro:{name:"Gastroenteritis",advice:"Stay hydrated with oral rehydration solutions and eat bland foods. See a doctor if you have severe pain, blood in stool, or signs of dehydration."},
+  allergy:{name:"Seasonal Allergies",advice:"Try an antihistamine and avoid known triggers. See an allergist if symptoms are persistent or severe."},
+  bronchitis:{name:"Bronchitis",advice:"Rest, stay hydrated, and use a humidifier. See a doctor if you have a high fever, difficulty breathing, or a cough lasting more than 3 weeks."},
+  uti:{name:"Urinary Tract Infection",advice:"Drink plenty of water and see a doctor promptly — UTIs typically require antibiotics."},
+  tension_headache:{name:"Tension Headache",advice:"Rest, manage stress, stay hydrated, and consider over-the-counter pain relief. See a doctor if headaches become frequent."},
+  food_poison:{name:"Food Poisoning",advice:"Stay hydrated, rest, and avoid solid food until vomiting subsides. Seek care if you notice blood, high fever, or signs of dehydration."}},
+  specialists:{general_physician:"General Physician",neurologist:"Neurologist",gastroenterologist:"Gastroenterologist",allergist:"Allergist / Immunologist",pulmonologist:"Pulmonologist",urologist:"Urologist"},
+  questions:{q1:"Did your fever start suddenly and rise quickly (above 38.3°C / 101°F)?",q2:"Have you noticed a loss of taste or smell?",q3:"Is your cough dry, without mucus?",q4:"Is your cough producing thick mucus or phlegm?",q5:"Does light or sound make your headache worse?",q6:"Did the headache come on gradually and feel like tightness or pressure?",q7:"Have you eaten anything unusual or possibly spoiled in the last 24 hours?",q8:"Did your symptoms begin within a few hours of eating?",q9:"Do you feel a burning sensation when urinating?",q10:"Do you need to urinate more often than usual?",q11:"Do your symptoms worsen around pollen, dust, or pets?",q12:"Is your nasal discharge clear rather than yellow or green?",q13:"Have your symptoms lasted more than 10 days?",q14:"Do you feel pain or tightness in your chest when breathing deeply?",q15:"Have you been in close contact with someone recently diagnosed with a contagious illness?"}
+},
+es:{
+  ui:{title:"¿Cómo te sientes hoy?", subtitle:"Cuéntanos qué te pasa y te ayudaremos a entender tus síntomas y el siguiente paso a seguir.",
+  startBtn:"Revisar mis síntomas", symptomsTitle:"Selecciona todos los síntomas que tienes actualmente",
+  symptomsSub:"Elige todos los que apliquen. Esto nos ayuda a acotar las opciones.", continueBtn:"Continuar", backBtn:"Atrás",
+  questionsTitle:"Algunas preguntas rápidas", yes:"Sí", no:"No", resultsTitle:"Tus resultados",
+  resultsSub:"Según tus respuestas, esto es lo más probable — y qué hacer a continuación.",
+  matchLabel:"Coincidencia estimada", adviceLabel:"Qué hacer", specialistLabel:"Consulta a", findDoctorTitle:"Encuentra un médico cercano",
+  findDoctorText:"Abre Google Maps para localizar especialistas cerca de tu ubicación actual.", findDoctorBtn:"Buscar médicos cercanos",
+  restartBtn:"Volver a empezar", disclaimer:"SymptomSense es una herramienta educativa y no ofrece un diagnóstico médico. Los resultados son solo estimaciones informativas, no sustituyen el consejo médico profesional. Consulta siempre a un médico con licencia.",
+  emergencyTitle:"Busca atención urgente", emergencyText:"Algunos de tus síntomas pueden indicar una emergencia médica. Si tienes dolor torácico intenso, dificultad para respirar o síntomas que parecen graves, contacta a los servicios de emergencia de inmediato.",
+  noSymptoms:"Selecciona al menos un síntoma para continuar.", selectLangTitle:"Elige tu idioma", of:"de", question:"Pregunta"},
+  symptoms:{fever:"Fiebre",cough:"Tos",sore_throat:"Dolor de garganta",headache:"Dolor de cabeza",fatigue:"Fatiga",body_ache:"Dolores corporales",nausea:"Náuseas",vomiting:"Vómitos",diarrhea:"Diarrea",chest_pain:"Dolor de pecho",breath_short:"Falta de aire",dizziness:"Mareos",rash:"Erupción cutánea",joint_pain:"Dolor articular",abdominal_pain:"Dolor abdominal",runny_nose:"Secreción nasal",loss_appetite:"Pérdida de apetito",chills:"Escalofríos",sweating:"Sudoración excesiva",blurred_vision:"Visión borrosa",burning_urination:"Ardor al orinar"},
+  diseases:{cold:{name:"Resfriado común",advice:"Descansa, hidrátate y usa remedios de venta libre para el alivio. Consulta a un médico si empeora o dura más de 10 días."},
+  flu:{name:"Gripe (Influenza)",advice:"Descansa, bebe líquidos y considera antivirales si se detecta a tiempo. Busca atención si tienes dificultad para respirar o síntomas graves."},
+  covid:{name:"Enfermedad similar a COVID-19",advice:"Aíslate de los demás, descansa y hazte una prueba. Busca atención urgente si sientes falta de aire o dolor en el pecho."},
+  migraine:{name:"Migraña",advice:"Descansa en un lugar oscuro y silencioso, hidrátate y considera analgésicos de venta libre. Consulta a un neurólogo si las migrañas son frecuentes."},
+  gastro:{name:"Gastroenteritis",advice:"Hidrátate con soluciones de rehidratación oral y come alimentos suaves. Consulta a un médico si hay dolor intenso o sangre en las heces."},
+  allergy:{name:"Alergias estacionales",advice:"Prueba un antihistamínico y evita los desencadenantes conocidos. Consulta a un alergólogo si los síntomas persisten."},
+  bronchitis:{name:"Bronquitis",advice:"Descansa, hidrátate y usa un humidificador. Consulta a un médico si tienes fiebre alta o dificultad para respirar."},
+  uti:{name:"Infección urinaria",advice:"Bebe abundante agua y consulta a un médico pronto — suele requerir antibióticos."},
+  tension_headache:{name:"Cefalea tensional",advice:"Descansa, controla el estrés, hidrátate y considera analgésicos de venta libre. Consulta a un médico si los dolores se vuelven frecuentes."},
+  food_poison:{name:"Intoxicación alimentaria",advice:"Hidrátate, descansa y evita alimentos sólidos hasta que cesen los vómitos. Busca atención si notas sangre o fiebre alta."}},
+  specialists:{general_physician:"Médico general",neurologist:"Neurólogo",gastroenterologist:"Gastroenterólogo",allergist:"Alergólogo / Inmunólogo",pulmonologist:"Neumólogo",urologist:"Urólogo"},
+  questions:{q1:"¿La fiebre comenzó de repente y subió rápido (más de 38.3°C)?",q2:"¿Has notado pérdida del gusto o del olfato?",q3:"¿Tu tos es seca, sin flema?",q4:"¿Tu tos produce flema espesa?",q5:"¿La luz o el sonido empeoran tu dolor de cabeza?",q6:"¿El dolor de cabeza apareció gradualmente y se siente como presión?",q7:"¿Comiste algo inusual o posiblemente en mal estado en las últimas 24 horas?",q8:"¿Tus síntomas comenzaron pocas horas después de comer?",q9:"¿Sientes ardor al orinar?",q10:"¿Necesitas orinar con más frecuencia de lo normal?",q11:"¿Tus síntomas empeoran con el polen, el polvo o las mascotas?",q12:"¿Tu secreción nasal es clara en lugar de amarilla o verde?",q13:"¿Tus síntomas han durado más de 10 días?",q14:"¿Sientes dolor u opresión en el pecho al respirar profundo?",q15:"¿Has estado en contacto cercano con alguien diagnosticado recientemente con una enfermedad contagiosa?"}
+},
+fr:{
+  ui:{title:"Comment vous sentez-vous aujourd'hui ?", subtitle:"Dites-nous ce qui se passe, nous vous aiderons à comprendre vos symptômes et la marche à suivre.",
+  startBtn:"Vérifier mes symptômes", symptomsTitle:"Sélectionnez tous les symptômes que vous ressentez actuellement",
+  symptomsSub:"Choisissez tout ce qui s'applique. Cela nous aide à affiner l'analyse.", continueBtn:"Continuer", backBtn:"Retour",
+  questionsTitle:"Quelques questions rapides", yes:"Oui", no:"Non", resultsTitle:"Vos résultats",
+  resultsSub:"D'après vos réponses, voici ce qui est le plus probable — et que faire ensuite.",
+  matchLabel:"Correspondance estimée", adviceLabel:"Que faire", specialistLabel:"Consultez un", findDoctorTitle:"Trouver un médecin à proximité",
+  findDoctorText:"Ouvrez Google Maps pour localiser des spécialistes près de vous.", findDoctorBtn:"Trouver des médecins",
+  restartBtn:"Recommencer", disclaimer:"SymptomSense est un outil éducatif et ne fournit pas de diagnostic médical. Les résultats sont des estimations informatives, pas un substitut à un avis médical professionnel. Consultez toujours un médecin agréé.",
+  emergencyTitle:"Consultez en urgence", emergencyText:"Certains de vos symptômes peuvent indiquer une urgence médicale. En cas de douleur thoracique intense ou de difficulté à respirer, contactez immédiatement les services d'urgence.",
+  noSymptoms:"Veuillez sélectionner au moins un symptôme pour continuer.", selectLangTitle:"Choisissez votre langue", of:"sur", question:"Question"},
+  symptoms:{fever:"Fièvre",cough:"Toux",sore_throat:"Mal de gorge",headache:"Mal de tête",fatigue:"Fatigue",body_ache:"Courbatures",nausea:"Nausées",vomiting:"Vomissements",diarrhea:"Diarrhée",chest_pain:"Douleur thoracique",breath_short:"Essoufflement",dizziness:"Vertiges",rash:"Éruption cutanée",joint_pain:"Douleurs articulaires",abdominal_pain:"Douleur abdominale",runny_nose:"Nez qui coule",loss_appetite:"Perte d'appétit",chills:"Frissons",sweating:"Transpiration excessive",blurred_vision:"Vision floue",burning_urination:"Brûlure en urinant"},
+  diseases:{cold:{name:"Rhume",advice:"Reposez-vous, hydratez-vous et utilisez des remèdes en vente libre. Consultez si les symptômes s'aggravent ou durent plus de 10 jours."},
+  flu:{name:"Grippe",advice:"Reposez-vous, buvez des liquides, envisagez un antiviral si détecté tôt. Consultez en cas de difficulté à respirer."},
+  covid:{name:"Maladie de type COVID-19",advice:"Isolez-vous, reposez-vous et faites-vous tester. Consultez en urgence en cas d'essoufflement ou de douleur thoracique."},
+  migraine:{name:"Migraine",advice:"Reposez-vous dans une pièce sombre et calme, hydratez-vous, envisagez un antalgique. Consultez un neurologue si fréquent."},
+  gastro:{name:"Gastro-entérite",advice:"Hydratez-vous avec des solutions de réhydratation orale et mangez léger. Consultez en cas de douleur intense ou de sang dans les selles."},
+  allergy:{name:"Allergies saisonnières",advice:"Essayez un antihistaminique et évitez les déclencheurs connus. Consultez un allergologue si persistant."},
+  bronchitis:{name:"Bronchite",advice:"Reposez-vous, hydratez-vous et utilisez un humidificateur. Consultez en cas de forte fièvre ou de difficulté à respirer."},
+  uti:{name:"Infection urinaire",advice:"Buvez beaucoup d'eau et consultez rapidement — nécessite généralement des antibiotiques."},
+  tension_headache:{name:"Céphalée de tension",advice:"Reposez-vous, gérez le stress, hydratez-vous, envisagez un antalgique. Consultez si les maux de tête deviennent fréquents."},
+  food_poison:{name:"Intoxication alimentaire",advice:"Hydratez-vous, reposez-vous et évitez les aliments solides jusqu'à ce que les vomissements cessent. Consultez en cas de sang ou de forte fièvre."}},
+  specialists:{general_physician:"Médecin généraliste",neurologist:"Neurologue",gastroenterologist:"Gastro-entérologue",allergist:"Allergologue / Immunologue",pulmonologist:"Pneumologue",urologist:"Urologue"},
+  questions:{q1:"Votre fièvre a-t-elle commencé soudainement et augmenté rapidement (plus de 38,3 °C) ?",q2:"Avez-vous remarqué une perte de goût ou d'odorat ?",q3:"Votre toux est-elle sèche, sans mucosités ?",q4:"Votre toux produit-elle des mucosités épaisses ?",q5:"La lumière ou le bruit aggravent-ils votre mal de tête ?",q6:"Le mal de tête est-il apparu progressivement, comme une pression ?",q7:"Avez-vous mangé quelque chose d'inhabituel ou possiblement avarié dans les 24 dernières heures ?",q8:"Vos symptômes ont-ils commencé quelques heures après avoir mangé ?",q9:"Ressentez-vous une brûlure en urinant ?",q10:"Avez-vous besoin d'uriner plus souvent que d'habitude ?",q11:"Vos symptômes s'aggravent-ils avec le pollen, la poussière ou les animaux ?",q12:"Vos sécrétions nasales sont-elles claires plutôt que jaunes ou vertes ?",q13:"Vos symptômes durent-ils depuis plus de 10 jours ?",q14:"Ressentez-vous une douleur ou une oppression thoracique en respirant profondément ?",q15:"Avez-vous été en contact étroit avec une personne récemment diagnostiquée avec une maladie contagieuse ?"}
+},
+de:{
+  ui:{title:"Wie fühlen Sie sich heute?", subtitle:"Erzählen Sie uns, was los ist — wir helfen Ihnen, Ihre Symptome zu verstehen und die nächsten Schritte zu finden.",
+  startBtn:"Symptome prüfen", symptomsTitle:"Wählen Sie alle Symptome aus, die Sie gerade haben",
+  symptomsSub:"Wählen Sie alles Zutreffende aus. Das hilft uns, die Auswahl einzugrenzen.", continueBtn:"Weiter", backBtn:"Zurück",
+  questionsTitle:"Ein paar kurze Fragen", yes:"Ja", no:"Nein", resultsTitle:"Ihre Ergebnisse",
+  resultsSub:"Basierend auf Ihren Antworten ist dies am wahrscheinlichsten — und was als Nächstes zu tun ist.",
+  matchLabel:"Geschätzte Übereinstimmung", adviceLabel:"Was zu tun ist", specialistLabel:"Konsultieren Sie einen", findDoctorTitle:"Arzt in der Nähe finden",
+  findDoctorText:"Öffnen Sie Google Maps, um Fachärzte in Ihrer Nähe zu finden.", findDoctorBtn:"Ärzte in der Nähe finden",
+  restartBtn:"Neu starten", disclaimer:"SymptomSense ist ein Lerntool und stellt keine medizinische Diagnose. Die Ergebnisse sind nur informative Schätzungen und kein Ersatz für professionellen medizinischen Rat. Konsultieren Sie stets einen approbierten Arzt.",
+  emergencyTitle:"Dringende Behandlung nötig", emergencyText:"Einige Ihrer Symptome können auf einen medizinischen Notfall hinweisen. Bei starken Brustschmerzen oder Atemnot wenden Sie sich sofort an den Rettungsdienst.",
+  noSymptoms:"Bitte wählen Sie mindestens ein Symptom aus.", selectLangTitle:"Sprache wählen", of:"von", question:"Frage"},
+  symptoms:{fever:"Fieber",cough:"Husten",sore_throat:"Halsschmerzen",headache:"Kopfschmerzen",fatigue:"Müdigkeit",body_ache:"Gliederschmerzen",nausea:"Übelkeit",vomiting:"Erbrechen",diarrhea:"Durchfall",chest_pain:"Brustschmerzen",breath_short:"Kurzatmigkeit",dizziness:"Schwindel",rash:"Hautausschlag",joint_pain:"Gelenkschmerzen",abdominal_pain:"Bauchschmerzen",runny_nose:"Laufende Nase",loss_appetite:"Appetitlosigkeit",chills:"Schüttelfrost",sweating:"Starkes Schwitzen",blurred_vision:"Verschwommenes Sehen",burning_urination:"Brennen beim Wasserlassen"},
+  diseases:{cold:{name:"Erkältung",advice:"Ruhen Sie sich aus, trinken Sie viel und nutzen Sie rezeptfreie Mittel. Arzt aufsuchen, wenn es sich verschlimmert oder länger als 10 Tage dauert."},
+  flu:{name:"Grippe (Influenza)",advice:"Ruhen Sie sich aus, trinken Sie Flüssigkeit, ziehen Sie frühzeitig antivirale Mittel in Betracht. Bei Atemnot Arzt aufsuchen."},
+  covid:{name:"COVID-19-ähnliche Erkrankung",advice:"Isolieren Sie sich, ruhen Sie sich aus und lassen Sie sich testen. Bei Atemnot oder Brustschmerzen dringend ärztliche Hilfe suchen."},
+  migraine:{name:"Migräne",advice:"Ruhen Sie in einem dunklen, ruhigen Raum, trinken Sie viel, ziehen Sie Schmerzmittel in Betracht. Bei häufigen Migränen Neurologen aufsuchen."},
+  gastro:{name:"Magen-Darm-Entzündung",advice:"Trinken Sie Elektrolytlösungen und essen Sie leichte Kost. Bei starken Schmerzen oder Blut im Stuhl Arzt aufsuchen."},
+  allergy:{name:"Saisonale Allergien",advice:"Probieren Sie ein Antihistaminikum und meiden Sie bekannte Auslöser. Bei anhaltenden Symptomen Allergologen aufsuchen."},
+  bronchitis:{name:"Bronchitis",advice:"Ruhen Sie sich aus, trinken Sie viel und nutzen Sie einen Luftbefeuchter. Bei hohem Fieber oder Atemnot Arzt aufsuchen."},
+  uti:{name:"Harnwegsinfektion",advice:"Trinken Sie viel Wasser und suchen Sie zeitnah einen Arzt auf — meist sind Antibiotika nötig."},
+  tension_headache:{name:"Spannungskopfschmerz",advice:"Ruhen Sie sich aus, reduzieren Sie Stress, trinken Sie viel. Bei häufigen Kopfschmerzen Arzt aufsuchen."},
+  food_poison:{name:"Lebensmittelvergiftung",advice:"Trinken Sie viel, ruhen Sie sich aus und meiden Sie feste Nahrung, bis das Erbrechen nachlässt. Bei Blut oder hohem Fieber Arzt aufsuchen."}},
+  specialists:{general_physician:"Allgemeinarzt",neurologist:"Neurologe",gastroenterologist:"Gastroenterologe",allergist:"Allergologe / Immunologe",pulmonologist:"Pneumologe",urologist:"Urologe"},
+  questions:{q1:"Begann Ihr Fieber plötzlich und stieg schnell an (über 38,3 °C)?",q2:"Haben Sie einen Verlust von Geschmack oder Geruch bemerkt?",q3:"Ist Ihr Husten trocken, ohne Schleim?",q4:"Produziert Ihr Husten dicken Schleim?",q5:"Verschlimmern Licht oder Geräusche Ihre Kopfschmerzen?",q6:"Kamen die Kopfschmerzen allmählich und fühlen sich wie Druck an?",q7:"Haben Sie in den letzten 24 Stunden etwas Ungewöhnliches oder möglicherweise Verdorbenes gegessen?",q8:"Begannen Ihre Symptome wenige Stunden nach dem Essen?",q9:"Spüren Sie ein Brennen beim Wasserlassen?",q10:"Müssen Sie häufiger als gewöhnlich Wasser lassen?",q11:"Verschlimmern sich Ihre Symptome bei Pollen, Staub oder Tieren?",q12:"Ist Ihr Nasensekret klar statt gelb oder grün?",q13:"Dauern Ihre Symptome schon länger als 10 Tage an?",q14:"Spüren Sie Schmerzen oder Enge in der Brust beim tiefen Atmen?",q15:"Hatten Sie engen Kontakt mit jemandem, der kürzlich mit einer ansteckenden Krankheit diagnostiziert wurde?"}
+},
+pt:{
+  ui:{title:"Como você está se sentindo hoje?", subtitle:"Conte-nos o que está acontecendo e ajudaremos a entender seus sintomas e o próximo passo.",
+  startBtn:"Verificar meus sintomas", symptomsTitle:"Selecione todos os sintomas que você sente atualmente",
+  symptomsSub:"Escolha todos que se aplicam. Isso nos ajuda a refinar a análise.", continueBtn:"Continuar", backBtn:"Voltar",
+  questionsTitle:"Algumas perguntas rápidas", yes:"Sim", no:"Não", resultsTitle:"Seus resultados",
+  resultsSub:"Com base nas suas respostas, isto é o mais provável — e o que fazer a seguir.",
+  matchLabel:"Correspondência estimada", adviceLabel:"O que fazer", specialistLabel:"Consulte um", findDoctorTitle:"Encontre um médico próximo",
+  findDoctorText:"Abra o Google Maps para localizar especialistas perto de você.", findDoctorBtn:"Buscar médicos próximos",
+  restartBtn:"Recomeçar", disclaimer:"O SymptomSense é uma ferramenta educacional e não fornece diagnóstico médico. Os resultados são apenas estimativas informativas, não substituem o aconselhamento médico profissional. Consulte sempre um médico licenciado.",
+  emergencyTitle:"Procure atendimento urgente", emergencyText:"Alguns dos seus sintomas podem indicar uma emergência médica. Em caso de dor torácica intensa ou falta de ar, contate os serviços de emergência imediatamente.",
+  noSymptoms:"Selecione pelo menos um sintoma para continuar.", selectLangTitle:"Escolha seu idioma", of:"de", question:"Pergunta"},
+  symptoms:{fever:"Febre",cough:"Tosse",sore_throat:"Dor de garganta",headache:"Dor de cabeça",fatigue:"Fadiga",body_ache:"Dores no corpo",nausea:"Náusea",vomiting:"Vômito",diarrhea:"Diarreia",chest_pain:"Dor no peito",breath_short:"Falta de ar",dizziness:"Tontura",rash:"Erupção cutânea",joint_pain:"Dor nas articulações",abdominal_pain:"Dor abdominal",runny_nose:"Nariz escorrendo",loss_appetite:"Perda de apetite",chills:"Calafrios",sweating:"Suor excessivo",blurred_vision:"Visão turva",burning_urination:"Ardência ao urinar"},
+  diseases:{cold:{name:"Resfriado comum",advice:"Descanse, hidrate-se e use remédios de venda livre. Consulte um médico se piorar ou durar mais de 10 dias."},
+  flu:{name:"Gripe (Influenza)",advice:"Descanse, beba líquidos e considere antivirais se detectado cedo. Procure ajuda se tiver dificuldade para respirar."},
+  covid:{name:"Doença tipo COVID-19",advice:"Isole-se, descanse e faça um teste. Procure atendimento urgente se sentir falta de ar ou dor no peito."},
+  migraine:{name:"Enxaqueca",advice:"Descanse em um local escuro e silencioso, hidrate-se, considere analgésicos. Consulte um neurologista se for frequente."},
+  gastro:{name:"Gastroenterite",advice:"Hidrate-se com soro de reidratação oral e coma alimentos leves. Consulte um médico se houver dor intensa ou sangue nas fezes."},
+  allergy:{name:"Alergias sazonais",advice:"Experimente um anti-histamínico e evite gatilhos conhecidos. Consulte um alergista se persistente."},
+  bronchitis:{name:"Bronquite",advice:"Descanse, hidrate-se e use um umidificador. Consulte um médico se tiver febre alta ou dificuldade para respirar."},
+  uti:{name:"Infecção urinária",advice:"Beba bastante água e consulte um médico prontamente — geralmente requer antibióticos."},
+  tension_headache:{name:"Cefaleia tensional",advice:"Descanse, controle o estresse, hidrate-se. Consulte um médico se as dores se tornarem frequentes."},
+  food_poison:{name:"Intoxicação alimentar",advice:"Hidrate-se, descanse e evite alimentos sólidos até os vômitos cessarem. Procure ajuda se notar sangue ou febre alta."}},
+  specialists:{general_physician:"Clínico geral",neurologist:"Neurologista",gastroenterologist:"Gastroenterologista",allergist:"Alergista / Imunologista",pulmonologist:"Pneumologista",urologist:"Urologista"},
+  questions:{q1:"Sua febre começou de repente e subiu rápido (acima de 38,3 °C)?",q2:"Você notou perda de paladar ou olfato?",q3:"Sua tosse é seca, sem catarro?",q4:"Sua tosse produz catarro espesso?",q5:"Luz ou som pioram sua dor de cabeça?",q6:"A dor de cabeça surgiu gradualmente e parece pressão?",q7:"Você comeu algo incomum ou possivelmente estragado nas últimas 24 horas?",q8:"Seus sintomas começaram poucas horas após comer?",q9:"Você sente ardência ao urinar?",q10:"Você precisa urinar com mais frequência que o normal?",q11:"Seus sintomas pioram perto de pólen, poeira ou animais?",q12:"Sua secreção nasal é clara em vez de amarela ou verde?",q13:"Seus sintomas duram mais de 10 dias?",q14:"Você sente dor ou aperto no peito ao respirar fundo?",q15:"Você teve contato próximo com alguém diagnosticado recentemente com uma doença contagiosa?"}
+},
+ru:{
+  ui:{title:"Как вы себя чувствуете сегодня?", subtitle:"Расскажите, что происходит — мы поможем разобраться в симптомах и подскажем, что делать дальше.",
+  startBtn:"Проверить симптомы", symptomsTitle:"Отметьте все симптомы, которые вы сейчас испытываете",
+  symptomsSub:"Выберите все подходящие варианты. Это поможет сузить круг вариантов.", continueBtn:"Далее", backBtn:"Назад",
+  questionsTitle:"Несколько быстрых вопросов", yes:"Да", no:"Нет", resultsTitle:"Ваши результаты",
+  resultsSub:"На основе ваших ответов, вот наиболее вероятные варианты — и что делать дальше.",
+  matchLabel:"Оценка совпадения", adviceLabel:"Что делать", specialistLabel:"Обратитесь к", findDoctorTitle:"Найти врача поблизости",
+  findDoctorText:"Откройте Google Карты, чтобы найти специалистов рядом с вами.", findDoctorBtn:"Найти врачей рядом",
+  restartBtn:"Начать заново", disclaimer:"SymptomSense — образовательный инструмент, не ставящий медицинский диагноз. Результаты являются лишь информационными оценками и не заменяют консультацию врача. Всегда обращайтесь к лицензированному врачу.",
+  emergencyTitle:"Требуется срочная помощь", emergencyText:"Некоторые из ваших симптомов могут указывать на неотложное состояние. При сильной боли в груди или затруднённом дыхании немедленно обратитесь в службу экстренной помощи.",
+  noSymptoms:"Пожалуйста, выберите хотя бы один симптом.", selectLangTitle:"Выберите язык", of:"из", question:"Вопрос"},
+  symptoms:{fever:"Жар",cough:"Кашель",sore_throat:"Боль в горле",headache:"Головная боль",fatigue:"Усталость",body_ache:"Ломота в теле",nausea:"Тошнота",vomiting:"Рвота",diarrhea:"Диарея",chest_pain:"Боль в груди",breath_short:"Одышка",dizziness:"Головокружение",rash:"Кожная сыпь",joint_pain:"Боль в суставах",abdominal_pain:"Боль в животе",runny_nose:"Насморк",loss_appetite:"Потеря аппетита",chills:"Озноб",sweating:"Сильное потоотделение",blurred_vision:"Нечёткое зрение",burning_urination:"Жжение при мочеиспускании"},
+  diseases:{cold:{name:"Простуда",advice:"Отдыхайте, пейте больше жидкости, используйте безрецептурные средства. Обратитесь к врачу, если состояние ухудшается или длится более 10 дней."},
+  flu:{name:"Грипп",advice:"Отдыхайте, пейте жидкость, при раннем выявлении рассмотрите противовирусные препараты. Обратитесь за помощью при затруднённом дыхании."},
+  covid:{name:"Заболевание, похожее на COVID-19",advice:"Изолируйтесь от других, отдыхайте и сдайте тест. Срочно обратитесь за помощью при одышке или боли в груди."},
+  migraine:{name:"Мигрень",advice:"Отдыхайте в тёмной тихой комнате, пейте больше жидкости, рассмотрите обезболивающее. Обратитесь к неврологу при частых приступах."},
+  gastro:{name:"Гастроэнтерит",advice:"Пейте растворы для пероральной регидратации и ешьте лёгкую пищу. Обратитесь к врачу при сильной боли или крови в стуле."},
+  allergy:{name:"Сезонная аллергия",advice:"Попробуйте антигистаминное средство и избегайте известных триггеров. Обратитесь к аллергологу при стойких симптомах."},
+  bronchitis:{name:"Бронхит",advice:"Отдыхайте, пейте жидкость, используйте увлажнитель воздуха. Обратитесь к врачу при высокой температуре или затруднённом дыхании."},
+  uti:{name:"Инфекция мочевыводящих путей",advice:"Пейте много воды и как можно скорее обратитесь к врачу — обычно требуются антибиотики."},
+  tension_headache:{name:"Головная боль напряжения",advice:"Отдыхайте, снижайте стресс, пейте больше жидкости. Обратитесь к врачу, если боли участились."},
+  food_poison:{name:"Пищевое отравление",advice:"Пейте больше жидкости, отдыхайте и избегайте твёрдой пищи, пока не прекратится рвота. Обратитесь за помощью при крови или высокой температуре."}},
+  specialists:{general_physician:"Терапевт",neurologist:"Невролог",gastroenterologist:"Гастроэнтеролог",allergist:"Аллерголог / Иммунолог",pulmonologist:"Пульмонолог",urologist:"Уролог"},
+  questions:{q1:"Температура поднялась внезапно и быстро (выше 38,3 °C)?",q2:"Вы заметили потерю вкуса или обоняния?",q3:"Ваш кашель сухой, без мокроты?",q4:"Ваш кашель с густой мокротой?",q5:"Свет или звук усиливают вашу головную боль?",q6:"Головная боль возникла постепенно и ощущается как давление?",q7:"Ели ли вы что-то необычное или, возможно, испорченное за последние 24 часа?",q8:"Симптомы начались через несколько часов после еды?",q9:"Ощущаете ли вы жжение при мочеиспускании?",q10:"Приходится ли вам мочиться чаще обычного?",q11:"Симптомы усиливаются рядом с пыльцой, пылью или животными?",q12:"Ваши выделения из носа прозрачные, а не жёлтые или зелёные?",q13:"Симптомы длятся более 10 дней?",q14:"Чувствуете ли вы боль или стеснение в груди при глубоком дыхании?",q15:"Были ли вы в тесном контакте с кем-то, у кого недавно диагностировали заразную болезнь?"}
+},
+hi:{
+  ui:{title:"आज आप कैसा महसूस कर रहे हैं?", subtitle:"हमें बताएं क्या हो रहा है — हम आपके लक्षणों को समझने और अगला कदम तय करने में मदद करेंगे।",
+  startBtn:"मेरे लक्षण जांचें", symptomsTitle:"वे सभी लक्षण चुनें जो आप अभी महसूस कर रहे हैं",
+  symptomsSub:"जो भी लागू हो उसे चुनें। इससे हमें सही अंदाज़ा लगाने में मदद मिलेगी।", continueBtn:"जारी रखें", backBtn:"वापस",
+  questionsTitle:"कुछ त्वरित प्रश्न", yes:"हाँ", no:"नहीं", resultsTitle:"आपके परिणाम",
+  resultsSub:"आपके उत्तरों के आधार पर, यह सबसे संभावित है — और आगे क्या करना है।",
+  matchLabel:"संभावित मिलान", adviceLabel:"क्या करें", specialistLabel:"इनसे मिलें:", findDoctorTitle:"पास में डॉक्टर खोजें",
+  findDoctorText:"अपने पास के विशेषज्ञों को खोजने के लिए Google मैप्स खोलें।", findDoctorBtn:"पास के डॉक्टर खोजें",
+  restartBtn:"फिर से शुरू करें", disclaimer:"SymptomSense एक शैक्षणिक उपकरण है और यह चिकित्सीय निदान प्रदान नहीं करता। परिणाम केवल सूचनात्मक अनुमान हैं, पेशेवर चिकित्सा सलाह का विकल्प नहीं। कृपया हमेशा किसी लाइसेंस प्राप्त डॉक्टर से सलाह लें।",
+  emergencyTitle:"तुरंत चिकित्सा सहायता लें", emergencyText:"आपके कुछ लक्षण एक मेडिकल इमरजेंसी का संकेत हो सकते हैं। यदि आपको सीने में तेज़ दर्द या सांस लेने में तकलीफ है, तो तुरंत आपातकालीन सेवाओं से संपर्क करें।",
+  noSymptoms:"कृपया जारी रखने के लिए कम से कम एक लक्षण चुनें।", selectLangTitle:"अपनी भाषा चुनें", of:"में से", question:"प्रश्न"},
+  symptoms:{fever:"बुखार",cough:"खांसी",sore_throat:"गले में खराश",headache:"सिरदर्द",fatigue:"थकान",body_ache:"बदन दर्द",nausea:"जी मिचलाना",vomiting:"उल्टी",diarrhea:"दस्त",chest_pain:"सीने में दर्द",breath_short:"सांस लेने में तकलीफ",dizziness:"चक्कर आना",rash:"त्वचा पर चकत्ते",joint_pain:"जोड़ों में दर्द",abdominal_pain:"पेट में दर्द",runny_nose:"नाक बहना",loss_appetite:"भूख न लगना",chills:"ठंड लगना",sweating:"अत्यधिक पसीना",blurred_vision:"धुंधला दिखना",burning_urination:"पेशाब में जलन"},
+  diseases:{cold:{name:"सामान्य सर्दी",advice:"आराम करें, तरल पदार्थ लें और ओवर-द-काउंटर दवाओं का उपयोग करें। यदि लक्षण बिगड़ें या 10 दिनों से अधिक रहें तो डॉक्टर से मिलें।"},
+  flu:{name:"इन्फ्लूएंजा (फ्लू)",advice:"आराम करें, तरल पदार्थ पिएं, जल्दी पहचान होने पर एंटीवायरल दवा पर विचार करें। सांस लेने में तकलीफ होने पर डॉक्टर से मिलें।"},
+  covid:{name:"COVID-19 जैसी बीमारी",advice:"खुद को अलग रखें, आराम करें और जांच कराएं। सांस लेने में तकलीफ या सीने में दर्द होने पर तुरंत डॉक्टर से मिलें।"},
+  migraine:{name:"माइग्रेन",advice:"अंधेरे, शांत कमरे में आराम करें, तरल पदार्थ लें, दर्द निवारक दवा पर विचार करें। बार-बार माइग्रेन होने पर न्यूरोलॉजिस्ट से मिलें।"},
+  gastro:{name:"गैस्ट्रोएंटेराइटिस",advice:"ओरल रिहाइड्रेशन घोल लें और हल्का भोजन करें। तेज़ दर्द या मल में खून दिखे तो डॉक्टर से मिलें।"},
+  allergy:{name:"मौसमी एलर्जी",advice:"एंटीहिस्टामाइन आज़माएं और ज्ञात कारणों से बचें। लक्षण बने रहने पर एलर्जिस्ट से मिलें।"},
+  bronchitis:{name:"ब्रोंकाइटिस",advice:"आराम करें, तरल पदार्थ लें और ह्यूमिडिफायर का उपयोग करें। तेज़ बुखार या सांस लेने में तकलीफ होने पर डॉक्टर से मिलें।"},
+  uti:{name:"मूत्र मार्ग संक्रमण",advice:"खूब पानी पिएं और जल्द ही डॉक्टर से मिलें — आमतौर पर एंटीबायोटिक्स की ज़रूरत होती है।"},
+  tension_headache:{name:"तनाव सिरदर्द",advice:"आराम करें, तनाव कम करें, तरल पदार्थ लें। सिरदर्द बार-बार होने पर डॉक्टर से मिलें।"},
+  food_poison:{name:"खाद्य विषाक्तता",advice:"तरल पदार्थ लें, आराम करें और उल्टी बंद होने तक ठोस भोजन से बचें। खून या तेज़ बुखार दिखे तो डॉक्टर से मिलें।"}},
+  specialists:{general_physician:"सामान्य चिकित्सक",neurologist:"न्यूरोलॉजिस्ट",gastroenterologist:"गैस्ट्रोएंटेरोलॉजिस्ट",allergist:"एलर्जिस्ट / इम्यूनोलॉजिस्ट",pulmonologist:"पल्मोनोलॉजिस्ट",urologist:"यूरोलॉजिस्ट"},
+  questions:{q1:"क्या आपका बुखार अचानक शुरू हुआ और तेज़ी से बढ़ा (38.3°C से ऊपर)?",q2:"क्या आपने स्वाद या गंध में कमी महसूस की है?",q3:"क्या आपकी खांसी सूखी है, बिना बलगम के?",q4:"क्या आपकी खांसी में गाढ़ा बलगम आता है?",q5:"क्या रोशनी या आवाज़ से आपका सिरदर्द बढ़ जाता है?",q6:"क्या सिरदर्द धीरे-धीरे शुरू हुआ और दबाव जैसा महसूस होता है?",q7:"क्या पिछले 24 घंटों में आपने कुछ असामान्य या खराब खाना खाया है?",q8:"क्या आपके लक्षण खाने के कुछ घंटों के भीतर शुरू हुए?",q9:"क्या पेशाब करते समय जलन महसूस होती है?",q10:"क्या आपको सामान्य से अधिक बार पेशाब करने की ज़रूरत पड़ती है?",q11:"क्या पराग, धूल या पालतू जानवरों के आसपास आपके लक्षण बिगड़ जाते हैं?",q12:"क्या आपकी नाक से साफ़ स्राव आता है, न कि पीला या हरा?",q13:"क्या आपके लक्षण 10 दिनों से अधिक समय से बने हुए हैं?",q14:"क्या गहरी सांस लेने पर सीने में दर्द या जकड़न महसूस होती है?",q15:"क्या आप हाल ही में किसी संक्रामक बीमारी से पीड़ित व्यक्ति के निकट संपर्क में रहे हैं?"}
+},
+zh:{
+  ui:{title:"你今天感觉怎么样？", subtitle:"告诉我们发生了什么，我们会帮你了解症状并给出下一步建议。",
+  startBtn:"检查我的症状", symptomsTitle:"请选择您目前出现的所有症状",
+  symptomsSub:"请选择所有适用项，这将帮助我们缩小范围。", continueBtn:"继续", backBtn:"返回",
+  questionsTitle:"几个简单问题", yes:"是", no:"否", resultsTitle:"您的结果",
+  resultsSub:"根据您的回答，这是最可能的情况——以及接下来该怎么做。",
+  matchLabel:"匹配可能性", adviceLabel:"建议措施", specialistLabel:"建议就诊：", findDoctorTitle:"查找附近医生",
+  findDoctorText:"打开谷歌地图查找您附近的专科医生。", findDoctorBtn:"查找附近医生",
+  restartBtn:"重新开始", disclaimer:"SymptomSense 是一个教育工具，并不提供医学诊断。结果仅为信息性估计，不能替代专业医疗建议。请务必咨询持证医生。",
+  emergencyTitle:"请立即就医", emergencyText:"您的部分症状可能提示医疗紧急情况。如果出现剧烈胸痛或呼吸困难，请立即联系急救服务。",
+  noSymptoms:"请至少选择一个症状以继续。", selectLangTitle:"选择您的语言", of:"/", question:"问题"},
+  symptoms:{fever:"发烧",cough:"咳嗽",sore_throat:"喉咙痛",headache:"头痛",fatigue:"疲劳",body_ache:"全身酸痛",nausea:"恶心",vomiting:"呕吐",diarrhea:"腹泻",chest_pain:"胸痛",breath_short:"呼吸急促",dizziness:"头晕",rash:"皮疹",joint_pain:"关节痛",abdominal_pain:"腹痛",runny_nose:"流鼻涕",loss_appetite:"食欲不振",chills:"发冷",sweating:"多汗",blurred_vision:"视力模糊",burning_urination:"排尿灼热"},
+  diseases:{cold:{name:"普通感冒",advice:"充分休息、多喝水，并使用非处方药缓解症状。如症状加重或持续超过10天，请就医。"},
+  flu:{name:"流感",advice:"休息、多喝水，如及早发现可考虑抗病毒药物。若出现呼吸困难请及时就医。"},
+  covid:{name:"类COVID-19疾病",advice:"与他人隔离、休息并进行检测。如出现呼吸急促或胸痛，请立即就医。"},
+  migraine:{name:"偏头痛",advice:"在黑暗安静的房间休息，多喝水，可考虑非处方止痛药。若偏头痛频繁发作，请咨询神经科医生。"},
+  gastro:{name:"肠胃炎",advice:"服用口服补液盐并进食清淡食物。如有剧烈疼痛或大便带血，请就医。"},
+  allergy:{name:"季节性过敏",advice:"可尝试抗组胺药并避免已知诱因。如症状持续，请咨询过敏专科医生。"},
+  bronchitis:{name:"支气管炎",advice:"休息、多喝水并使用加湿器。如出现高烧或呼吸困难，请就医。"},
+  uti:{name:"尿路感染",advice:"多喝水并尽快就医——通常需要抗生素治疗。"},
+  tension_headache:{name:"紧张性头痛",advice:"休息、管理压力、多喝水，可考虑非处方止痛药。如头痛频繁发作，请就医。"},
+  food_poison:{name:"食物中毒",advice:"多喝水、休息，在呕吐停止前避免固体食物。如出现便血或高烧，请就医。"}},
+  specialists:{general_physician:"全科医生",neurologist:"神经科医生",gastroenterologist:"消化科医生",allergist:"过敏科 / 免疫科医生",pulmonologist:"呼吸科医生",urologist:"泌尿科医生"},
+  questions:{q1:"您的发烧是否突然开始并迅速升高（超过38.3°C）？",q2:"您是否注意到味觉或嗅觉丧失？",q3:"您的咳嗽是否是干咳，没有痰？",q4:"您咳嗽时是否有浓痰？",q5:"光线或声音是否会加重您的头痛？",q6:"头痛是否逐渐出现，感觉像压迫感？",q7:"过去24小时内您是否吃过不寻常或可能变质的食物？",q8:"您的症状是否在进食后几小时内开始？",q9:"排尿时是否有灼热感？",q10:"您是否比平常更频繁地排尿？",q11:"您的症状是否在接触花粉、灰尘或宠物时加重？",q12:"您的鼻涕是清澈的还是黄色/绿色的？",q13:"您的症状是否已持续超过10天？",q14:"深呼吸时胸部是否有疼痛或紧绷感？",q15:"您最近是否与被诊断患有传染病的人有密切接触？"}
+},
+ar:{
+  ui:{title:"كيف تشعر اليوم؟", subtitle:"أخبرنا بما يحدث، وسنساعدك على فهم أعراضك ومعرفة الخطوة التالية المناسبة.",
+  startBtn:"تحقق من أعراضي", symptomsTitle:"اختر جميع الأعراض التي تعاني منها حاليًا",
+  symptomsSub:"اختر كل ما ينطبق عليك. هذا يساعدنا على تضييق الاحتمالات.", continueBtn:"متابعة", backBtn:"رجوع",
+  questionsTitle:"بضعة أسئلة سريعة", yes:"نعم", no:"لا", resultsTitle:"نتائجك",
+  resultsSub:"بناءً على إجاباتك، هذا هو الاحتمال الأكثر ترجيحًا — وما يجب فعله بعد ذلك.",
+  matchLabel:"نسبة التطابق المحتملة", adviceLabel:"ما يجب فعله", specialistLabel:"راجع", findDoctorTitle:"ابحث عن طبيب قريب",
+  findDoctorText:"افتح خرائط جوجل للعثور على أخصائيين بالقرب من موقعك الحالي.", findDoctorBtn:"البحث عن أطباء قريبين",
+  restartBtn:"البدء من جديد", disclaimer:"SymptomSense أداة تعليمية ولا تقدم تشخيصًا طبيًا. النتائج مجرد تقديرات معلوماتية وليست بديلاً عن الاستشارة الطبية المتخصصة. استشر دائمًا طبيبًا مرخصًا.",
+  emergencyTitle:"اطلب رعاية عاجلة", emergencyText:"قد تشير بعض أعراضك إلى حالة طبية طارئة. إذا كنت تعاني من ألم شديد في الصدر أو صعوبة في التنفس، فاتصل بخدمات الطوارئ فورًا.",
+  noSymptoms:"يرجى اختيار عرض واحد على الأقل للمتابعة.", selectLangTitle:"اختر لغتك", of:"من", question:"سؤال"},
+  symptoms:{fever:"حمى",cough:"سعال",sore_throat:"التهاب الحلق",headache:"صداع",fatigue:"إرهاق",body_ache:"آلام الجسم",nausea:"غثيان",vomiting:"قيء",diarrhea:"إسهال",chest_pain:"ألم في الصدر",breath_short:"ضيق التنفس",dizziness:"دوخة",rash:"طفح جلدي",joint_pain:"ألم المفاصل",abdominal_pain:"ألم البطن",runny_nose:"سيلان الأنف",loss_appetite:"فقدان الشهية",chills:"قشعريرة",sweating:"تعرق مفرط",blurred_vision:"عدم وضوح الرؤية",burning_urination:"حرقة عند التبول"},
+  diseases:{cold:{name:"نزلة برد",advice:"احصل على الراحة، اشرب السوائل، واستخدم الأدوية المتاحة دون وصفة طبية. راجع الطبيب إذا ساءت الأعراض أو استمرت أكثر من 10 أيام."},
+  flu:{name:"الإنفلونزا",advice:"احصل على الراحة، اشرب السوائل، وفكر في الأدوية المضادة للفيروسات إذا تم اكتشافها مبكرًا. اطلب الرعاية إذا واجهت صعوبة في التنفس."},
+  covid:{name:"مرض شبيه بكوفيد-19",advice:"اعزل نفسك عن الآخرين، احصل على الراحة، وقم بإجراء فحص. اطلب رعاية عاجلة إذا شعرت بضيق تنفس أو ألم في الصدر."},
+  migraine:{name:"الشقيقة (الصداع النصفي)",advice:"استرح في غرفة مظلمة وهادئة، اشرب السوائل، وفكر في مسكنات الألم. راجع طبيب أعصاب إذا كانت النوبات متكررة."},
+  gastro:{name:"التهاب المعدة والأمعاء",advice:"اشرب محاليل الإماهة الفموية وتناول أطعمة خفيفة. راجع الطبيب إذا كان الألم شديدًا أو وجد دم في البراز."},
+  allergy:{name:"الحساسية الموسمية",advice:"جرب مضادات الهيستامين وتجنب المسببات المعروفة. راجع أخصائي الحساسية إذا استمرت الأعراض."},
+  bronchitis:{name:"التهاب الشعب الهوائية",advice:"استرح، اشرب السوائل، واستخدم جهاز ترطيب. راجع الطبيب إذا ارتفعت الحرارة أو واجهت صعوبة في التنفس."},
+  uti:{name:"التهاب المسالك البولية",advice:"اشرب كمية كبيرة من الماء وراجع الطبيب فورًا — عادة ما تتطلب مضادات حيوية."},
+  tension_headache:{name:"صداع التوتر",advice:"استرح، قلل التوتر، اشرب السوائل. راجع الطبيب إذا أصبح الصداع متكررًا."},
+  food_poison:{name:"تسمم غذائي",advice:"اشرب السوائل، استرح، وتجنب الطعام الصلب حتى يتوقف القيء. اطلب الرعاية إذا لاحظت دمًا أو حرارة مرتفعة."}},
+  specialists:{general_physician:"طبيب عام",neurologist:"طبيب أعصاب",gastroenterologist:"طبيب جهاز هضمي",allergist:"أخصائي حساسية / مناعة",pulmonologist:"طبيب صدرية",urologist:"طبيب مسالك بولية"},
+  questions:{q1:"هل بدأت الحمى فجأة وارتفعت بسرعة (أكثر من 38.3 درجة مئوية)؟",q2:"هل لاحظت فقدان حاسة التذوق أو الشم؟",q3:"هل سعالك جاف بدون بلغم؟",q4:"هل ينتج سعالك بلغمًا سميكًا؟",q5:"هل يزداد صداعك سوءًا مع الضوء أو الصوت؟",q6:"هل بدأ الصداع تدريجيًا ويشعر وكأنه ضغط؟",q7:"هل تناولت طعامًا غير معتاد أو ربما فاسدًا في آخر 24 ساعة؟",q8:"هل بدأت أعراضك خلال ساعات قليلة من تناول الطعام؟",q9:"هل تشعر بحرقة عند التبول؟",q10:"هل تحتاج إلى التبول أكثر من المعتاد؟",q11:"هل تزداد أعراضك سوءًا بالقرب من حبوب اللقاح أو الغبار أو الحيوانات الأليفة؟",q12:"هل إفرازات أنفك صافية بدلاً من صفراء أو خضراء؟",q13:"هل استمرت أعراضك أكثر من 10 أيام؟",q14:"هل تشعر بألم أو ضيق في الصدر عند التنفس بعمق؟",q15:"هل كنت على اتصال وثيق بشخص تم تشخيصه مؤخرًا بمرض معدٍ؟"}
+},
+ja:{
+  ui:{title:"今日の気分はいかがですか？", subtitle:"状況を教えてください。症状を理解し、次にすべきことを一緒に考えます。",
+  startBtn:"症状をチェックする", symptomsTitle:"現在experiencing している症状をすべて選択してください",
+  symptomsSub:"該当するものをすべて選んでください。絞り込みに役立ちます。", continueBtn:"次へ", backBtn:"戻る",
+  questionsTitle:"簡単な質問がいくつかあります", yes:"はい", no:"いいえ", resultsTitle:"結果",
+  resultsSub:"あなたの回答に基づく、最も可能性の高い候補と次にすべきことです。",
+  matchLabel:"推定一致度", adviceLabel:"対処法", specialistLabel:"受診をおすすめする科：", findDoctorTitle:"近くの医師を探す",
+  findDoctorText:"Googleマップを開いて、近くの専門医を探します。", findDoctorBtn:"近くの医師を探す",
+  restartBtn:"最初からやり直す", disclaimer:"SymptomSenseは教育目的のツールであり、医学的診断を提供するものではありません。結果は情報提供のための推定に過ぎず、専門的な医療アドバイスの代わりにはなりません。必ず有資格の医師にご相談ください。",
+  emergencyTitle:"至急受診してください", emergencyText:"一部の症状は救急対応が必要な状態を示している可能性があります。激しい胸の痛みや呼吸困難がある場合は、直ちに救急サービスに連絡してください。",
+  noSymptoms:"続行するには少なくとも1つの症状を選択してください。", selectLangTitle:"言語を選択してください", of:"/", question:"質問"},
+  symptoms:{fever:"発熱",cough:"咳",sore_throat:"喉の痛み",headache:"頭痛",fatigue:"倦怠感",body_ache:"体の痛み",nausea:"吐き気",vomiting:"嘔吐",diarrhea:"下痢",chest_pain:"胸痛",breath_short:"息切れ",dizziness:"めまい",rash:"発疹",joint_pain:"関節痛",abdominal_pain:"腹痛",runny_nose:"鼻水",loss_appetite:"食欲不振",chills:"悪寒",sweating:"多汗",blurred_vision:"かすみ目",burning_urination:"排尿時の痛み"},
+  diseases:{cold:{name:"風邪",advice:"休息と水分補給を行い、市販薬で症状を和らげてください。症状が悪化するか10日以上続く場合は受診してください。"},
+  flu:{name:"インフルエンザ",advice:"休息し水分を取り、早期であれば抗ウイルス薬を検討してください。呼吸困難がある場合は受診してください。"},
+  covid:{name:"COVID-19様疾患",advice:"他者から隔離し、休息して検査を受けてください。息切れや胸痛がある場合は直ちに受診してください。"},
+  migraine:{name:"片頭痛",advice:"暗く静かな部屋で休息し、水分を取り、市販の鎮痛剤を検討してください。頻繁な場合は神経内科を受診してください。"},
+  gastro:{name:"胃腸炎",advice:"経口補水液を摂取し、消化の良い食事を取ってください。激しい痛みや血便がある場合は受診してください。"},
+  allergy:{name:"季節性アレルギー",advice:"抗ヒスタミン薬を試し、既知の原因を避けてください。症状が続く場合はアレルギー専門医を受診してください。"},
+  bronchitis:{name:"気管支炎",advice:"休息し水分を取り、加湿器を使用してください。高熱や呼吸困難がある場合は受診してください。"},
+  uti:{name:"尿路感染症",advice:"水分を十分に取り、早めに受診してください — 通常抗生物質が必要です。"},
+  tension_headache:{name:"緊張型頭痛",advice:"休息しストレスを管理し、水分を取ってください。頭痛が頻繁になる場合は受診してください。"},
+  food_poison:{name:"食中毒",advice:"水分を取り休息し、嘔吐が治まるまで固形物を避けてください。血便や高熱がある場合は受診してください。"}},
+  specialists:{general_physician:"一般内科医",neurologist:"神経内科医",gastroenterologist:"消化器科医",allergist:"アレルギー科医 / 免疫科医",pulmonologist:"呼吸器科医",urologist:"泌尿器科医"},
+  questions:{q1:"熱は急に始まり急速に上昇しましたか（38.3°C以上）？",q2:"味覚または嗅覚の喪失に気づきましたか？",q3:"咳は痰のない乾いた咳ですか？",q4:"咳は粘り気のある痰を伴いますか？",q5:"光や音で頭痛が悪化しますか？",q6:"頭痛は徐々に始まり、圧迫感のように感じますか？",q7:"過去24時間以内に普段と違う、あるいは傷んでいるかもしれない食べ物を食べましたか？",q8:"症状は食事の数時間以内に始まりましたか？",q9:"排尿時に灼熱感がありますか？",q10:"普段より頻繁に排尿する必要がありますか？",q11:"花粉、ほこり、ペットの近くで症状が悪化しますか？",q12:"鼻水は黄色や緑色ではなく透明ですか？",q13:"症状は10日以上続いていますか？",q14:"深呼吸すると胸に痛みや圧迫感を感じますか？",q15:"最近、感染症と診断された人と密接に接触しましたか？"}
+}
+};
+
+/* ======================= STATE ======================= */
+let state = {
+  lang: null,
+  screen: 'lang', // lang -> welcome -> symptoms -> questions -> results
+  selectedSymptoms: new Set(),
+  activeQuestions: [],
+  qIndex: 0,
+  answers: {} // qid -> true/false
+};
+
+function t(){ return T[state.lang]; }
+
+/* ======================= RENDER ======================= */
+const root = document.getElementById('cardRoot');
+const htmlRoot = document.getElementById('htmlRoot');
+
+function setLang(code){
+  state.lang = code;
+  htmlRoot.setAttribute('lang', code);
+  htmlRoot.setAttribute('dir', RTL_LANGS.includes(code) ? 'rtl' : 'ltr');
+  htmlRoot.className = 'lang-' + code;
+  state.screen = 'welcome';
+  render();
+}
+
+function render(){
+  root.innerHTML = '';
+  if(state.screen === 'lang') return renderLangScreen();
+  if(state.screen === 'welcome') return renderWelcome();
+  if(state.screen === 'symptoms') return renderSymptoms();
+  if(state.screen === 'questions') return renderQuestions();
+  if(state.screen === 'results') return renderResults();
+}
+
+function renderLangScreen(){
+  const wrap = document.createElement('div');
+  wrap.innerHTML = `
+    <div class="eyebrow">SymptomSense</div>
+    <h1 class="display">Choose your language</h1>
+    <p class="sub">Select a language to continue / Sélectionnez une langue / 选择您的语言</p>
+    <div class="lang-grid" id="langGrid"></div>
+  `;
+  root.appendChild(wrap);
+  const grid = wrap.querySelector('#langGrid');
+  LANGS.forEach(l=>{
+    const b = document.createElement('button');
+    b.className = 'lang-btn';
+    b.textContent = l.native;
+    b.onclick = ()=> setLang(l.code);
+    grid.appendChild(b);
+  });
+}
+
+function renderTopBar(showLangSwitch){
+  const bar = document.createElement('div');
+  bar.className = 'top-bar';
+  const left = document.createElement('div');
+  left.className = 'brand-name';
+  left.style.fontSize = '.8rem';
+  left.style.opacity = '.6';
+  left.textContent = '';
+  bar.appendChild(left);
+  if(showLangSwitch){
+    const sel = document.createElement('select');
+    sel.className = 'lang-select';
+    LANGS.forEach(l=>{
+      const opt = document.createElement('option');
+      opt.value = l.code; opt.textContent = l.native;
+      if(l.code === state.lang) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    sel.onchange = e => { const cur = state.screen; setLang(e.target.value); state.screen = cur; render(); };
+    bar.appendChild(sel);
+  }
+  return bar;
+}
+
+function renderWelcome(){
+  const ui = t().ui;
+  const wrap = document.createElement('div');
+  wrap.appendChild(renderTopBar(true));
+  const body = document.createElement('div');
+  body.innerHTML = `
+    <div class="eyebrow">SymptomSense</div>
+    <h1 class="display">${ui.title}</h1>
+    <p class="sub">${ui.subtitle}</p>
+  `;
+  wrap.appendChild(body);
+  const actions = document.createElement('div');
+  actions.className = 'row-actions';
+  const startBtn = document.createElement('button');
+  startBtn.className = 'btn';
+  startBtn.textContent = ui.startBtn;
+  startBtn.onclick = ()=>{ state.screen = 'symptoms'; render(); };
+  actions.appendChild(startBtn);
+  wrap.appendChild(actions);
+  root.appendChild(wrap);
+}
+
+function renderSymptoms(){
+  const ui = t().ui; const sym = t().symptoms;
+  const wrap = document.createElement('div');
+  wrap.appendChild(renderTopBar(true));
+  wrap.insertAdjacentHTML('beforeend', `
+    <div class="eyebrow">${ui.questionsTitle ? '' : ''}Step 1</div>
+    <h1 class="display" style="font-size:1.35rem">${ui.symptomsTitle}</h1>
+    <p class="sub">${ui.symptomsSub}</p>
+  `);
+  const grid = document.createElement('div');
+  grid.className = 'symptom-grid';
+  SYMPTOM_IDS.forEach(id=>{
+    const chip = document.createElement('label');
+    chip.className = 'symptom-chip' + (state.selectedSymptoms.has(id) ? ' checked' : '');
+    chip.innerHTML = `<input type="checkbox" ${state.selectedSymptoms.has(id)?'checked':''}/><span>${sym[id]}</span>`;
+    const input = chip.querySelector('input');
+    input.onchange = ()=>{
+      if(input.checked) state.selectedSymptoms.add(id); else state.selectedSymptoms.delete(id);
+      chip.classList.toggle('checked', input.checked);
+    };
+    grid.appendChild(chip);
+  });
+  wrap.appendChild(grid);
+
+  const warn = document.createElement('p');
+  warn.style.cssText = 'color:#B14A34;font-size:.82rem;margin-top:10px;display:none;';
+  warn.textContent = ui.noSymptoms;
+  wrap.appendChild(warn);
+
+  const actions = document.createElement('div');
+  actions.className = 'row-actions';
+  const back = document.createElement('button');
+  back.className = 'btn secondary'; back.textContent = ui.backBtn;
+  back.onclick = ()=>{ state.screen = 'welcome'; render(); };
+  const cont = document.createElement('button');
+  cont.className = 'btn'; cont.textContent = ui.continueBtn;
+  cont.onclick = ()=>{
+    if(state.selectedSymptoms.size === 0){ warn.style.display='block'; return; }
+    prepareQuestions();
+    state.screen = 'questions'; state.qIndex = 0;
+    render();
+  };
+  actions.appendChild(back); actions.appendChild(cont);
+  wrap.appendChild(actions);
+  root.appendChild(wrap);
+}
+
+function computeInitialScores(){
+  const scores = {};
+  DISEASE_IDS.forEach(d=>{
+    let s = 0;
+    const map = DISEASE_SYMPTOMS[d];
+    state.selectedSymptoms.forEach(symId=>{ if(map[symId]) s += map[symId]; });
+    scores[d] = s;
+  });
+  return scores;
+}
+
+function prepareQuestions(){
+  const scores = computeInitialScores();
+  const ranked = DISEASE_IDS.slice().sort((a,b)=> scores[b]-scores[a]);
+  const topDiseases = ranked.slice(0,4).filter(d=> scores[d] > 0);
+  const fallback = topDiseases.length ? topDiseases : ranked.slice(0,3);
+
+  const allQIds = Object.keys(QUESTIONS);
+  const relevant = allQIds.filter(qid => Object.keys(QUESTIONS[qid].w).some(d=> fallback.includes(d)));
+  const rest = allQIds.filter(qid => !relevant.includes(qid));
+  let chosen = relevant.slice(0,10);
+  if(chosen.length < 10){ chosen = chosen.concat(rest.slice(0, 10-chosen.length)); }
+  state.activeQuestions = chosen.slice(0,10);
+  state.answers = {};
+}
+
+function renderQuestions(){
+  const ui = t().ui; const qs = t().questions;
+  const wrap = document.createElement('div');
+  wrap.appendChild(renderTopBar(false));
+
+  const qid = state.activeQuestions[state.qIndex];
+  const progressPct = Math.round((state.qIndex) / state.activeQuestions.length * 100);
+
+  wrap.insertAdjacentHTML('beforeend', `
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" style="width:${progressPct}%"></div></div>
+      <div class="progress-label">${ui.question} ${state.qIndex+1} ${ui.of} ${state.activeQuestions.length}</div>
+    </div>
+    <div class="q-text">${qs[qid]}</div>
+  `);
+
+  const ynRow = document.createElement('div');
+  ynRow.className = 'yn-row';
+  const yesBtn = document.createElement('button');
+  yesBtn.className = 'yn-btn yes'; yesBtn.textContent = ui.yes;
+  yesBtn.onclick = ()=> answerQuestion(qid, true);
+  const noBtn = document.createElement('button');
+  noBtn.className = 'yn-btn no'; noBtn.textContent = ui.no;
+  noBtn.onclick = ()=> answerQuestion(qid, false);
+  ynRow.appendChild(yesBtn); ynRow.appendChild(noBtn);
+  wrap.appendChild(ynRow);
+
+  if(state.qIndex > 0){
+    const actions = document.createElement('div');
+    actions.className = 'row-actions';
+    const back = document.createElement('button');
+    back.className = 'btn secondary'; back.textContent = ui.backBtn;
+    back.onclick = ()=>{ state.qIndex--; render(); };
+    actions.appendChild(back);
+    wrap.appendChild(actions);
+  }
+  root.appendChild(wrap);
+}
+
+function answerQuestion(qid, val){
+  state.answers[qid] = val;
+  if(state.qIndex < state.activeQuestions.length - 1){
+    state.qIndex++;
+  } else {
+    state.screen = 'results';
+  }
+  render();
+}
+
+function computeFinalResults(){
+  const scores = computeInitialScores();
+  Object.keys(state.answers).forEach(qid=>{
+    if(state.answers[qid]){
+      const w = QUESTIONS[qid].w;
+      Object.keys(w).forEach(d=>{ scores[d] = (scores[d]||0) + w[d]; });
+    }
+  });
+  const results = DISEASE_IDS.map(d=>{
+    const pct = Math.max(3, Math.min(97, Math.round(Math.max(scores[d],0) / MAX_SCORES[d] * 100)));
+    return {id:d, pct, score:scores[d]};
+  }).sort((a,b)=> b.pct - a.pct);
+  return results.slice(0,4);
+}
+
+function isEmergency(){
+  const s = state.selectedSymptoms;
+  if(s.has('chest_pain') && s.has('breath_short')) return true;
+  if(s.has('breath_short') && s.has('blurred_vision')) return true;
+  if(s.has('chest_pain') && s.has('sweating')) return true;
+  return false;
+}
+
+function renderResults(){
+  const ui = t().ui; const dz = t().diseases; const sp = t().specialists;
+  const wrap = document.createElement('div');
+  wrap.appendChild(renderTopBar(true));
+
+  wrap.insertAdjacentHTML('beforeend', `
+    <div class="eyebrow">Results</div>
+    <h1 class="display" style="font-size:1.4rem">${ui.resultsTitle}</h1>
+    <p class="sub">${ui.resultsSub}</p>
+  `);
+
+  if(isEmergency()){
+    const banner = document.createElement('div');
+    banner.className = 'emergency-banner';
+    banner.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 16.5h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" stroke="#B14A34" stroke-width="1.8" stroke-linejoin="round"/></svg>
+    <div><b>${ui.emergencyTitle}</b><p>${ui.emergencyText}</p></div>`;
+    wrap.appendChild(banner);
+  }
+
+  const results = computeFinalResults();
+  results.forEach((r,i)=>{
+    const d = dz[r.id];
+    const card = document.createElement('div');
+    card.className = 'result-card' + (i===0 ? ' top' : '');
+    card.innerHTML = `
+      <div class="result-head">
+        <div class="result-name">${i===0?'★ ':''}${d.name}</div>
+        <div class="result-pct">${r.pct}%</div>
+      </div>
+      <div class="pct-track"><div class="pct-fill" style="width:${r.pct}%"></div></div>
+      <div class="result-advice">${d.advice}</div>
+      <div class="specialist-tag">🩺 ${ui.specialistLabel} ${sp[DISEASE_SPECIALIST[r.id]]}</div>
+    `;
+    wrap.appendChild(card);
+  });
+
+  const topSpecialist = sp[DISEASE_SPECIALIST[results[0].id]];
+  const mapsCta = document.createElement('div');
+  mapsCta.className = 'maps-cta';
+  mapsCta.innerHTML = `
+    <div>
+      <div style="font-weight:700;font-family:'Fraunces',serif;margin-bottom:4px;">${ui.findDoctorTitle}</div>
+      <p>${ui.findDoctorText}</p>
+    </div>
+  `;
+  const mapsBtn = document.createElement('button');
+  mapsBtn.className = 'btn';
+  mapsBtn.textContent = ui.findDoctorBtn;
+  mapsBtn.onclick = ()=> openMaps(topSpecialist);
+  mapsCta.appendChild(mapsBtn);
+  wrap.appendChild(mapsCta);
+
+  const disclaimer = document.createElement('div');
+  disclaimer.className = 'disclaimer';
+  disclaimer.textContent = ui.disclaimer;
+  wrap.appendChild(disclaimer);
+
+  const actions = document.createElement('div');
+  actions.className = 'row-actions';
+  const restart = document.createElement('button');
+  restart.className = 'btn secondary'; restart.textContent = ui.restartBtn;
+  restart.onclick = ()=>{
+    state.selectedSymptoms = new Set(); state.answers = {}; state.activeQuestions = []; state.qIndex = 0;
+    state.screen = 'welcome'; render();
+  };
+  actions.appendChild(restart);
+  wrap.appendChild(actions);
+
+  root.appendChild(wrap);
+}
+
+function openMaps(specialistLabel){
+  const query = encodeURIComponent(specialistLabel + ' near me');
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      pos=>{
+        const {latitude, longitude} = pos.coords;
+        window.open(`https://www.google.com/maps/search/?api=1&query=${query}&center=${latitude},${longitude}`, '_blank');
+      },
+      ()=>{ window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank'); },
+      {timeout:5000}
+    );
+  } else {
+    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+  }
+}
+
+render();
+</script>
+</body>
+</html>
